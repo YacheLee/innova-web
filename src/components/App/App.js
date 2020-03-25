@@ -24,7 +24,7 @@ const Div = styled.div`
 const Form = styled.div`
   border: solid 1px red;
   font-size: 1.5rem;
-  width: 300px;
+  min-width: 300px;
   height: 300px;
   text-align: center;
   
@@ -39,6 +39,16 @@ const Logo = styled.img`
   height: 64px;
 `;
 
+const Ol = styled.ol`
+  color: red;
+  text-align: left;
+  font-size: 14px;
+`;
+
+const SuccessMsg = styled.div`
+  color: green;
+`;
+
 const PASSWORD_ID = "password";
 
 function getDisabled({password=""}){
@@ -47,15 +57,19 @@ function getDisabled({password=""}){
 
 function App() {
     const [password, setPassword] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+    const [errorMessages, setErrorMessages] = useState([]);
     const disabled = getDisabled({password});
 
     function onValidate(){
         validatePassword({password}).then(() => {
-            window.alert("Passed!");
+            setSuccessMsg("Passed!");
             setPassword("");
-        }).catch(()=>{
-            window.alert("NO!");
+            setErrorMessages([]);
+        }).catch(({response})=>{
+            setSuccessMsg("");
             setPassword("");
+            setErrorMessages(response.data.map(e=>e.msg));
         });
     }
 
@@ -77,6 +91,14 @@ function App() {
                             }}
                         />
                     </div>
+                    {successMsg!=="" && <SuccessMsg>{successMsg}</SuccessMsg>}
+                    {
+                        errorMessages.length!==0 && <Ol>
+                            {errorMessages.map(e=>{
+                                return <li>{e}</li>
+                            })}
+                        </Ol>
+                    }
                     <div style={{marginTop: '2rem'}}>
                         <AwesomeButton disabled={disabled} type="primary" onPress={onValidate}>Validate</AwesomeButton>
                     </div>
